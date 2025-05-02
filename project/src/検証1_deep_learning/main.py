@@ -26,9 +26,9 @@ chart_types = [
     "M5",
     "M15",
     "H1",
-    # "H4",
-    # "D1",
-    # "W1",
+    "H4",
+    "D1",
+    "W1",
 ]
 
 window_sizes = [
@@ -57,7 +57,7 @@ def main():
     os.makedirs(BASE_MODEL_RESULT_DIR, exist_ok=True)
     os.makedirs(BASE_RESULT_DIR, exist_ok=True)
 
-    for chart_type in chart_types[::-1]:
+    for chart_type in chart_types:
 
         # 必要なデータのみ取得
         csv_path = f"data/データ/{chart_type}.csv"
@@ -82,7 +82,33 @@ def main():
                     )
 
 
+def main2():
+    chart_type = "H1"
+    window_size = 30
+    model_no = 3
+    epochs = 20
+
+    test_name = f"chart_type_{chart_type}__window_size_{window_size}__model_no_{model_no}__epochs_{epochs}"
+    print(test_name)
+
+    # 必要なデータのみ取得
+    csv_path = f"data/データ/{chart_type}.csv"
+    df = pd.read_csv(csv_path)
+    df[df["timestamp"] >= "2025-01-01"]
+    df = df[["open", "high", "low", "close"]]
+
+    # 学習を実行
+    run_deep_learning(
+        df=df,
+        model_no=model_no,
+        window_size=window_size,
+        epochs=epochs,
+        model_h5_save_path=f"{BASE_MODEL_RESULT_DIR}{test_name}.h5",
+        result_csv_save_path=f"{BASE_RESULT_DIR}{test_name}.csv",
+    )
+
+
 if __name__ == "__main__":
     # from config.debug import *
 
-    main()
+    main2()

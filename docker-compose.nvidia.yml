@@ -1,0 +1,28 @@
+services:
+  # ---------------------------------
+  # python
+  # ---------------------------------
+  app:
+    restart: "no"
+    tty: true
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all # マシンのgpuを使用しない場合はコメントアウト
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility # マシンのgpuを使用しない場合はコメントアウト
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    runtime: nvidia # マシンのgpuを使用しない場合はコメントアウト
+    ports:
+      - "0.0.0.0:9000:9000" # デバッグ用
+      - "0.0.0.0:8000:8000" # webサーバー
+    volumes:
+      - ./project:/project
+    networks:
+      # - shared-network
+      - default
+# volumes:
+#   huggingface_model:
+
+# networks:
+#   shared-network:
+#     name: ${PROJECT_NAME}-network

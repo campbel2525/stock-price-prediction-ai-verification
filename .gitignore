@@ -1,4 +1,5 @@
 .env
+.env.docker
 __pycache__
 flagged
 .python_packages

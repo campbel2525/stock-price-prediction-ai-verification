@@ -6,7 +6,29 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM, Dropout, Dense
 import pandas as pd
 import numpy as np
-
+import tensorflow as tf
+from tensorflow.keras.layers import (
+    Input,
+    Dense,
+    BatchNormalization,
+    Dropout,
+    Add,
+    Activation,
+    Normalization,
+)
+from tensorflow.keras.models import Model
+import tensorflow as tf
+from tensorflow.keras.layers import (
+    Input,
+    Flatten,
+    Dense,
+    BatchNormalization,
+    Dropout,
+    Add,
+    Activation,
+    Normalization,
+)
+from tensorflow.keras.models import Model
 
 """
 学習でログを取るもの定義
@@ -44,10 +66,10 @@ def run_deep_learning(
     )
 
     # モデル定義
-    input_features = len(train_inputs[0][0])
+    input_units = len(train_inputs[0][0])
     output_units = len(train_outputs[0])
     time_steps = len(train_inputs[0])
-    model = _get_model(model_no, input_features, output_units, time_steps)
+    model = _get_model(model_no, input_units, output_units, time_steps)
 
     # 学習
     history = _execute_learning(
@@ -188,15 +210,23 @@ def _get_learning_data(
 
 def _get_model(
     model_no: int,
-    input_features,
-    output_units,
+    input_units: int,
+    output_units: int,
     time_steps,
 ):
     if model_no == 1:
         return _model1(output_units)
 
     if model_no == 2:
-        return _model2(input_features, output_units, time_steps)
+        return _model2(input_units, output_units, time_steps)
+
+    if model_no == 3:
+        return _model3(input_units, output_units)
+
+    if model_no == 4:
+        return _model4(input_units, output_units)
+
+    raise ValueError(f"model_no {model_no} is not supported.")
 
 
 def _model1(output_units: int) -> tf.keras.Sequential:
@@ -243,7 +273,7 @@ def _model1(output_units: int) -> tf.keras.Sequential:
 
 
 def _model2(
-    input_features: int,
+    input_units: int,
     output_units: int,
     time_steps: int,
 ) -> tf.keras.Sequential:
@@ -254,7 +284,7 @@ def _model2(
                 128,
                 activation="tanh",
                 return_sequences=True,
-                input_shape=(time_steps, input_features),
+                input_shape=(time_steps, input_units),
             ),
             Dropout(0.2),  # ドロップアウトで正則化
             # 2層目のLSTM
@@ -272,4 +302,106 @@ def _model2(
         metrics=METRICS,
     )
 
+    return model
+
+
+def _model3(input_units: int, output_units: int) -> Model:
+    """
+    3次元入力 (batch, 1, input_units) を受け取る ResNet風 MLP
+    """
+
+    def residual_block(x, units, dropout_rate, l2_reg=1e-3):
+        shortcut = Dense(units, kernel_regularizer=tf.keras.regularizers.l2(l2_reg))(x)
+        out = Dense(units, kernel_regularizer=tf.keras.regularizers.l2(l2_reg))(x)
+        out = BatchNormalization()(out)
+        out = Activation("relu")(out)
+        out = Dropout(dropout_rate)(out)
+        out = Add()([shortcut, out])
+        out = Activation("relu")(out)
+        return out
+
+    # 入力: (batch, 1, input_units)
+    inputs = Input(shape=(1, input_units))
+    # 1次元目を潰して (batch, input_units)
+    x = Flatten()(inputs)
+    # 正規化層
+    norm = Normalization()
+    # adapt は学習データを用意してから外部で呼び出す
+    # 例: norm.adapt(train_inputs.reshape(-1, input_units))
+    x = norm(x)
+
+    # 残差ブロック
+
+    x = residual_block(x, units=256, dropout_rate=0.4)
+    x = residual_block(x, units=128, dropout_rate=0.3)
+    x = residual_block(x, units=64, dropout_rate=0.2)
+
+    # x = residual_block(x, units=1024, dropout_rate=0.8)
+    # x = residual_block(x, units=512, dropout_rate=0.6)
+    # x = residual_block(x, units=256, dropout_rate=0.4)
+    # x = residual_block(x, units=128, dropout_rate=0.3)
+    # x = residual_block(x, units=64, dropout_rate=0.2)
+    # x = residual_block(x, units=32, dropout_rate=0.1)
+
+    # 出力層
+    outputs = Dense(output_units, activation="linear")(x)
+
+    model = Model(inputs, outputs)
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
+        loss="huber",
+        metrics=METRICS,
+    )
+    return model
+
+
+def _model4(input_units: int, output_units: int) -> Model:
+    """
+    3次元入力 (batch, 1, input_units) を受け取り、深いResNet風MLPを実装
+    """
+
+    def residual_block(x, units, dropout_rate=0.3, l2_reg=1e-3):
+        # ショートカット経路
+        shortcut = Dense(units, kernel_regularizer=tf.keras.regularizers.l2(l2_reg))(x)
+        # メイン経路
+        out = Dense(units, kernel_regularizer=tf.keras.regularizers.l2(l2_reg))(x)
+        out = BatchNormalization()(out)
+        out = Activation("relu")(out)
+        out = Dropout(dropout_rate)(out)
+        # 合流と再活性化
+        out = Add()([shortcut, out])
+        out = Activation("relu")(out)
+        return out
+
+    # 入力: (batch, 1, input_units)
+    inputs = Input(shape=(1, input_units))
+    # Flattenして2次元に
+    x = Flatten()(inputs)
+    # 全体正規化
+    norm = Normalization()
+    x = norm(x)
+
+    # 入力ドロップアウト
+    x = Dropout(0.2)(x)
+
+    # 残差ブロックを4段構築 (512→256→128→64)
+    x = residual_block(x, units=512, dropout_rate=0.4, l2_reg=1e-3)
+    x = residual_block(x, units=256, dropout_rate=0.35, l2_reg=1e-3)
+    x = residual_block(x, units=128, dropout_rate=0.3, l2_reg=1e-4)
+    x = residual_block(x, units=64, dropout_rate=0.25, l2_reg=1e-4)
+
+    # グローバルスキップ接続 (入力を最後に足し合わせ)
+    shortcut_final = Dense(64, kernel_regularizer=tf.keras.regularizers.l2(1e-4))(x)
+    x = Add()([shortcut_final, x])
+    x = Activation("relu")(x)
+
+    # 出力層
+    outputs = Dense(output_units, activation="linear")(x)
+
+    model = Model(inputs, outputs)
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
+        loss="huber",
+        metrics=METRICS,
+    )
     return model
