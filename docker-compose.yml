@@ -1,0 +1,12 @@
+version: "3"
+services:
+  app:
+    restart: "no"
+    tty: true
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:9000:9000" # デバッグ用
+    volumes:
+      - ./project:/project
