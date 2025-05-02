@@ -1,5 +1,5 @@
 # ベースイメージを CUDA＋cuDNN 搭載の Debian Bullseye に変更
-FROM nvcr.io/nvidia/pytorch:24.09-py3
+FROM nvcr.io/nvidia/tensorflow:25.02-tf2-py3
 
 # apt-getのアップデート
 RUN apt-get update && apt-get upgrade -y
@@ -12,7 +12,7 @@ RUN apt-get install -y --no-install-recommends \
     libkrb5-dev \
     libsnappy-dev \
     libreoffice \
-    libgl1-mesa-glx \
+    libgl1 \
     poppler-utils && \
     # pipenv 用に pip, setuptools, pipenv を最新化
     pip3 install --upgrade pip setuptools pipenv && \
@@ -32,6 +32,9 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # パスを通す
 ENV PYTHONPATH="/project"
+
+# ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
 
 # pipのアップデート
 RUN pip install --upgrade pip

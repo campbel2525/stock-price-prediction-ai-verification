@@ -5,19 +5,17 @@ name = "pypi"
 
 [packages]
 load-dotenv = "*"
-pandas = "*"
 matplotlib = "*"
 nixtla = "*"
-tensorflow = "*"
-debugpy = "*"
+tensorflow   = "==2.19.0"
 scikit-learn = "*"
-torch = "*"
 
 [dev-packages]
 flake8 = "*"
 mypy = "*"
 black = "*"
 isort = "*"
+debugpy = "*"
 
 [requires]
 python_version = "3.12"
