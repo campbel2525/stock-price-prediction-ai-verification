@@ -10,7 +10,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility # マシンのgpuを使用しない場合はコメントアウト
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.nvidia
     runtime: nvidia # マシンのgpuを使用しない場合はコメントアウト
     ports:
       - "0.0.0.0:9000:9000" # デバッグ用

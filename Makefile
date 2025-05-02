@@ -7,29 +7,29 @@ pf := $(COMPOSE_FILE)
 
 init: ## 開発作成
 	make chown
-	docker compose -p $(pn) build --no-cache
-	docker compose -p $(pn) down --volumes
-	docker compose -p $(pn) up -d
+	docker compose -f ${pf} -p $(pn) build --no-cache
+	docker compose -f ${pf} -p $(pn) down --volumes
+	docker compose -f ${pf} -p $(pn) up -d
 	make install
 	make chown
 
 up: ## 開発立ち上げ
-	docker compose -p $(pn) up -d
+	docker compose -f ${pf} -p $(pn) up -d
 
 down: ## 開発down
-	docker compose -p $(pn) down
+	docker compose -f ${pf} -p $(pn) down
 
 shell: ## dockerのshellに入る
-	docker compose -p $(pn) exec app bash
+	docker compose -f ${pf} -p $(pn) exec app bash
 
 check: ## コードのフォーマット
-	docker compose -p $(pn) exec -it app pipenv run isort .
-	docker compose -p $(pn) exec -it app pipenv run black .
-	docker compose -p $(pn) exec -it app pipenv run flake8 .
-	docker compose -p $(pn) exec -it app pipenv run mypy .
+	docker compose -f ${pf} -p $(pn) exec -it app pipenv run isort .
+	docker compose -f ${pf} -p $(pn) exec -it app pipenv run black .
+	docker compose -f ${pf} -p $(pn) exec -it app pipenv run flake8 .
+	docker compose -f ${pf} -p $(pn) exec -it app pipenv run mypy .
 
 install:
-	docker compose -p $(pn) exec -it app pipenv install --dev
+	docker compose -f ${pf} -p $(pn) exec -it app pipenv install --dev
 
 destroy: ## 開発環境削除
 	make down

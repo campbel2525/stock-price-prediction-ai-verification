@@ -11,6 +11,7 @@ nixtla = "*"
 tensorflow = "*"
 debugpy = "*"
 scikit-learn = "*"
+torch = "*"
 
 [dev-packages]
 flake8 = "*"
