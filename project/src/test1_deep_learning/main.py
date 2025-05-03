@@ -85,7 +85,7 @@ def main():
 def main2():
     chart_type = "H1"
     window_size = 30
-    model_no = 3
+    model_no = 1
     epochs = 20
 
     test_name = f"chart_type_{chart_type}__window_size_{window_size}__model_no_{model_no}__epochs_{epochs}"
