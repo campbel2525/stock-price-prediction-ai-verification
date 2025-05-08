@@ -5,11 +5,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.nvidia
-    # docker run --gpus all と同じ効果
     gpus: all
-
-    # NVIDIA_VISIBLE_DEVICES, NVIDIA_DRIVER_CAPABILITIES は
-    # たいてい不要ですが、必要なら残しても OK
     environment:
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
