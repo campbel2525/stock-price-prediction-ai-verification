@@ -1,3 +1,4 @@
+```
 pipenv install --dev --skip-lock
 
 import tensorflow as tf
@@ -8,3 +9,4 @@ docker run --rm --gpus all nvcr.io/nvidia/tensorflow:24.03-tf2-py3 \
 import tensorflow as tf
 print(tf.config.list_physical_devices('GPU'))
 EOF
+```
