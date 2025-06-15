@@ -1,0 +1,10 @@
+.env
+.env.docker
+__pycache__
+flagged
+.python_packages
+.postgres/
+/log_files/*
+.DS_Store
+.mypy_cache
+.venv

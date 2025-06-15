@@ -1,0 +1,22 @@
+version: "3.8" # ← これがないと gpus: all は無効になります
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile.nvidia
+    # docker run --gpus all と同じ効果
+    gpus: all
+
+    # NVIDIA_VISIBLE_DEVICES, NVIDIA_DRIVER_CAPABILITIES は
+    # たいてい不要ですが、必要なら残しても OK
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+    volumes:
+      - ./project:/project
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    restart: "no"
+    tty: true

@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+load-dotenv = "*"
+matplotlib = "*"
+nixtla = "*"
+tensorflow   = "==2.19.0"
+scikit-learn = "*"
+
+[dev-packages]
+flake8 = "*"
+mypy = "*"
+black = "*"
+isort = "*"
+debugpy = "*"
+
+[requires]
+python_version = "3.12"

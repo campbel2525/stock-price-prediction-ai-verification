@@ -1,0 +1,55 @@
+# ベースイメージを CUDA＋cuDNN 搭載の Debian Bullseye に変更
+FROM nvcr.io/nvidia/tensorflow:25.02-tf2-py3
+
+# apt-getのアップデート
+RUN apt-get update && apt-get upgrade -y
+
+# playwright の前提パッケージ
+RUN apt-get install -y --no-install-recommends \
+    python3 python3-dev python3-pip \
+    default-libmysqlclient-dev \
+    build-essential \
+    libkrb5-dev \
+    libsnappy-dev \
+    libreoffice \
+    libgl1 \
+    poppler-utils && \
+    # pipenv 用に pip, setuptools, pipenv を最新化
+    pip3 install --upgrade pip setuptools pipenv && \
+    rm -rf /var/lib/apt/lists/*
+
+# デフォルトのディレクトリを設定
+WORKDIR /project
+
+# project配下に.venvを作成する
+ENV PIPENV_VENV_IN_PROJECT=1
+
+# log出力をリアルタイムにする
+ENV PYTHONUNBUFFERED=1
+
+# キャッシュを作成しない
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# パスを通す
+ENV PYTHONPATH="/project"
+
+# ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
+
+# pipのアップデート
+RUN pip install --upgrade pip
+
+# pipenvのインストール
+RUN pip install --upgrade setuptools pipenv
+
+# # ライブラリのインストール
+# COPY Pipfile /project/
+# COPY Pipfile.lock /project/
+# RUN pipenv install --dev
+# RUN pipenv run playwright install
+
+# プロジェクトのファイルをコピー
+# COPY . /project/
+
+# 必要に応じて起動コマンドを指定してください（例示は削除しています）
+# 例: docker run --gpus all -it --rm my-image pipenv run python main.py
