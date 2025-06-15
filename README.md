@@ -1,10 +1,27 @@
-pipenv install --dev --skip-lock
+# 概要
 
-import tensorflow as tf
-print(tf.config.list_physical_devices('GPU'))
+株価予想の検証リポジトリです
 
-docker run --rm --gpus all nvcr.io/nvidia/tensorflow:24.03-tf2-py3 \
- python - <<'EOF'
-import tensorflow as tf
-print(tf.config.list_physical_devices('GPU'))
-EOF
+# 開発環境
+
+1.
+
+- `.env.docker.example`を参考に`.env.docker`の作成
+- `.env.example`を参考に`.env`の作成
+
+2.
+
+```
+make init
+```
+
+# 実行コマンド例
+
+1.
+
+```
+make shell
+pipenv run python src/test1_deep_learning/main.py
+```
+
+# メモ
